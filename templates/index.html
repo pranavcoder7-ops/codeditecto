@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>CodeSnap AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- HEADER -->
+
+    <header>
+
+        <div class="logo">
+            ⚡ CodeSnap AI
+        </div>
+
+        <h1>
+            Understand Your Code
+            <span>Instantly.</span>
+        </h1>
+
+        <p>
+            Smart code analysis for C, C++ and Python
+        </p>
+
+    </header>
+
+
+    <!-- MAIN APP -->
+
+    <main>
+
+
+        <!-- LEFT SIDE -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>💻 Code Input</h2>
+
+                <span class="badge">
+                    C • C++ • Python
+                </span>
+
+            </div>
+
+
+            <textarea
+                id="code"
+                placeholder="Paste your C, C++ or Python code here...
+
+Example:
+
+numbers = [10, 20, 30]
+
+for number in numbers:
+    print(number)"
+            ></textarea>
+
+
+            <div class="buttons">
+
+                <button
+                    class="primary"
+                    onclick="analyzeCode()">
+
+                    🔍 Analyze Code
+
+                </button>
+
+
+                <button
+                    class="secondary"
+                    onclick="loadExample()">
+
+                    ✨ Example
+
+                </button>
+
+
+                <button
+                    class="secondary"
+                    onclick="clearCode()">
+
+                    🗑 Clear
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- RIGHT SIDE -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>🧠 Code Intelligence</h2>
+
+                <span
+                    id="status"
+                    class="status">
+
+                    Ready
+
+                </span>
+
+            </div>
+
+
+            <div id="result">
+
+                <div class="empty">
+
+                    <div class="empty-icon">
+                        🤖
+                    </div>
+
+                    <h3>
+                        Waiting for your code
+                    </h3>
+
+                    <p>
+                        Paste your code and click
+                        <b>Analyze Code</b>.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- FEATURES -->
+
+    <div class="features">
+
+
+        <div class="feature">
+
+            <div>🔎</div>
+
+            <h3>
+                Language Detection
+            </h3>
+
+            <p>
+                Detects C, C++ and Python automatically.
+            </p>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div>🧠</div>
+
+            <h3>
+                Smart Explanation
+            </h3>
+
+            <p>
+                Understand loops, functions,
+                conditions and variables.
+            </p>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div>📊</div>
+
+            <h3>
+                Code Statistics
+            </h3>
+
+            <p>
+                View lines, characters and concepts.
+            </p>
+
+        </div>
+
+
+    </div>
+
+
+    <footer>
+
+        CodeSnap AI • Built with Python Flask
+
+    </footer>
+
+
+</div>
+
+
+
+<script>
+
+
+// -------------------------
+// ANALYZE CODE
+// -------------------------
+
+async function analyzeCode() {
+
+    const code =
+        document.getElementById("code").value;
+
+    const result =
+        document.getElementById("result");
+
+    const status =
+        document.getElementById("status");
+
+
+    if (!code.trim()) {
+
+        result.innerHTML = `
+
+            <div class="error-box">
+
+                ⚠️ Please enter some code first.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    status.innerText = "Analyzing...";
+
+
+    result.innerHTML = `
+
+        <div class="loading">
+
+            <div class="loader"></div>
+
+            <h3>
+                CodeSnap is analyzing your code...
+            </h3>
+
+            <p>
+                Detecting language and concepts
+            </p>
+
+        </div>
+
+    `;
+
+
+    try {
+
+        const response =
+            await fetch("/analyze", {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+
+                },
+
+                body: JSON.stringify({
+
+                    code: code
+
+                })
+
+            });
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Something went wrong"
+            );
+
+        }
+
+
+        status.innerText = "Analysis Complete";
+
+
+        displayResult(data);
+
+
+    }
+
+    catch (error) {
+
+        status.innerText = "Error";
+
+
+        result.innerHTML = `
+
+            <div class="error-box">
+
+                ❌ ${error.message}
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+// -------------------------
+// DISPLAY RESULT
+// -------------------------
+
+function displayResult(data) {
+
+
+    const result =
+        document.getElementById("result");
+
+
+    let concepts = "";
+
+
+    data.concepts.forEach(
+        function(concept) {
+
+            concepts += `
+
+                <span class="concept">
+                    ${concept}
+                </span>
+
+            `;
+
+        }
+    );
+
+
+    let explanation = "";
+
+
+    data.explanation.forEach(
+        function(item, index) {
+
+            explanation += `
+
+                <div class="explanation-item">
+
+                    <span class="number">
+                        ${index + 1}
+                    </span>
+
+                    <p>
+                        ${item}
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    result.innerHTML = `
+
+
+        <!-- LANGUAGE -->
+
+        <div class="result-section">
+
+            <div class="section-title">
+                🧩 Detected Language
+            </div>
+
+            <div class="language">
+
+                ${getLanguageIcon(data.language)}
+
+                ${data.language}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- STATISTICS -->
+
+        <div class="stats">
+
+
+            <div class="stat">
+
+                <strong>
+                    ${data.lines}
+                </strong>
+
+                <span>
+                    Lines
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <strong>
+                    ${data.characters}
+                </strong>
+
+                <span>
+                    Characters
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <strong>
+                    ${data.concepts.length}
+                </strong>
+
+                <span>
+                    Concepts
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- CONCEPTS -->
+
+        <div class="result-section">
+
+            <div class="section-title">
+                🏷 Concepts Detected
+            </div>
+
+            <div class="concepts">
+
+                ${concepts}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- EXPLANATION -->
+
+        <div class="result-section">
+
+            <div class="section-title">
+                🧠 Smart Explanation
+            </div>
+
+            <div class="explanation">
+
+                ${explanation}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- OUTPUT -->
+
+        <div class="result-section">
+
+            <div class="section-title">
+                🖥 Expected Output
+            </div>
+
+            <div class="output">
+
+                ${data.output}
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+
+// -------------------------
+// LANGUAGE ICON
+// -------------------------
+
+function getLanguageIcon(language) {
+
+    if (language === "Python")
+        return "🐍";
+
+    if (language === "C++")
+        return "⚙️";
+
+    if (language === "C")
+        return "🔧";
+
+    return "❓";
+
+}
+
+
+
+// -------------------------
+// EXAMPLE
+// -------------------------
+
+function loadExample() {
+
+
+    const code =
+        document.getElementById("code");
+
+
+    code.value = `numbers = [10, 20, 30, 40, 50]
+
+total = 0
+
+for number in numbers:
+    total += number
+
+average = total / len(numbers)
+
+print("Average:", average)`;
+
+
+    analyzeCode();
+
+}
+
+
+
+// -------------------------
+// CLEAR
+// -------------------------
+
+function clearCode() {
+
+    document.getElementById("code").value = "";
+
+    document.getElementById("status").innerText =
+        "Ready";
+
+
+    document.getElementById("result").innerHTML = `
+
+        <div class="empty">
+
+            <div class="empty-icon">
+                🤖
+            </div>
+
+            <h3>
+                Waiting for your code
+            </h3>
+
+            <p>
+                Paste your code and click
+                <b>Analyze Code</b>.
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
