@@ -1,0 +1,2 @@
+# codeditecto
+python,c,c++
