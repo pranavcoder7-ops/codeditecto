@@ -1,0 +1,6 @@
+[project]
+name = "codesnap-ai"
+version = "1.0.0"
+dependencies = [
+    "Flask==3.1.2"
+]
